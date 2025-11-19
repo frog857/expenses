@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+const { Client } = require("pg");
+
+console.log("Hello World!");
+
+const client = new Client({database: "expenses", password: "psql"});
+
+
+async function logQuery(queryText) {
+  await client.connect();
+  const data = await client.query(queryText);
+  console.log("Promise resolved");
+  console.log(data.rows);
+  client.end();
+}
+
+
+
+logQuery('TABLE expenses');
