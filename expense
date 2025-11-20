@@ -137,6 +137,7 @@ class ExpenseData {
   async listExpenses() {
     await this.client.connect().catch(err => logAndExit(err));
     await this.setupSchema().catch(err => logAndExit(err));
+
     const res = await this.client.query('SELECT * FROM expenses ORDER BY created_on ASC')
                             .catch(err => logAndExit(err));
 
@@ -158,11 +159,9 @@ class ExpenseData {
     let text = 'INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, $3)';
     let values = [amount, memo, date];
 
-    await this.client.query(text, values)
-                .catch(err => logAndExit(err));
+    await this.client.query(text, values).catch(err => logAndExit(err));
 
-    await this.client.end()
-                .catch(err => logAndExit(err));
+    await this.client.end().catch(err => logAndExit(err));
   }
 
   // search command
@@ -170,7 +169,7 @@ class ExpenseData {
     await this.client.connect().catch(err => logAndExit(err));
     await this.setupSchema().catch(err => logAndExit(err));
 
-    let text = `SELECT * FROM expenses WHERE memo ILIKE $1`
+    let text = `SELECT * FROM expenses WHERE memo ILIKE $1`;
     let params = [`%${searchTerm}%`];
     let res = await this.client.query(text, params).catch(err => logAndExit(err));
 
@@ -190,7 +189,7 @@ class ExpenseData {
     let res = await this.client.query(text, [id]).catch(err => logAndExit(err));
     
     if (res.rowCount === 0) {
-      console.log(`There is no expense with the id '${id}'`);
+      console.log(`There is no expense with the id '${id}'.`);
     } else {
       console.log(`The following expense has been deleted:`);
       this.displayExpenses(res.rows);
