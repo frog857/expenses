@@ -10,7 +10,8 @@ function logAndExit(err) {
 
 
 
-
+// This class handles all the user input and output
+// This class depends on ExpenseData
 class CLI {
   static HELP() {
     return `An expense recording system
@@ -69,6 +70,8 @@ search QUERY - list expenses with a matching memo field`
 }
 
 
+// This class handles all interaction with the database
+// This class is dependent on node-postgres (the database stuffs)
 class ExpenseData {
   constructor() {
     this.client = new Client({database: "expenses", password: "psql"});
@@ -76,6 +79,7 @@ class ExpenseData {
 
   async setupSchema() {
     let tableExistsQuery = `SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'expenses'`;
+    let tableExistsQueryTwo = `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'expenses')`;
 
     let tableCreationQuery = `CREATE TABLE expenses (
                                 id serial PRIMARY KEY,
@@ -84,9 +88,9 @@ class ExpenseData {
                                 created_on DATE NOT NULL 
                               );`
 
-    let res = await this.client.query(tableExistsQuery).catch(err => logAndExit(err));
-
-    if (res.rows[0].count === '0') {
+    let res = await this.client.query(tableExistsQueryTwo).catch(err => logAndExit(err));
+    
+    if (!res.rows[0].exists) {
       await this.client.query(tableCreationQuery).catch(err => logAndExit(err));
     }
   }
